@@ -5,22 +5,27 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Mart {
 	private Set<User> usersList;
 	private Inventory inventory;
 	private Set<Item> itemsList;
-
+	private static  Logger log = LoggerFactory.getLogger(Mart.class);
 	public Mart(Set<User> usersList, Inventory inventory, Set<Item> itemsList) {
 		this.usersList = usersList;
 		this.inventory = inventory;
 		this.itemsList = itemsList;
 	}
 	public String addUser(String userName, int amount) {
+		log.info("addUserName : {}, {}", userName, amount);
 		usersList.add(new User(userName, amount, new Cart(new HashMap<>())));
 		return "user added";
 	}
 
 	private Optional<User> getUser(String userName) {
+		log.info("getUser : {}", userName);
 		for (User user : usersList) {
 			if (user.getUserName().equalsIgnoreCase(userName)) {
 				return Optional.of(user);
@@ -30,12 +35,16 @@ public class Mart {
 	}
 
 	public String addToCart(String userName, String itemCategory, String brand, int quantityRequired) {
+		log.info("addToCart : {} {} {} {}", userName, itemCategory, brand, quantityRequired);
 		Optional<User> userOpt = getUser(userName);
 		if (userOpt.isPresent()) {
 			Optional<Item> itemOpt = inventory.getItem(itemCategory, brand);
 			if (itemOpt.isPresent()) {
 				int quantityPresent = inventory.getQuantity(itemOpt.get());
 				if (quantityRequired <= quantityPresent) {
+					log.info("usersList: {}" , usersList);
+					log.info("inventory: {}" , inventory);
+					log.info("itemsList: {}", itemsList);
 					return userOpt.get().addItem(itemOpt.get(), quantityRequired);
 				} else {
 					return "Inventory has less quantity of the item than required" + " quantityPresent: "
@@ -51,6 +60,7 @@ public class Mart {
 
 	public String updateCart(String userName, String itemCategory, String brand, int quantityRequired) {
 		Optional<User> userOpt = getUser(userName);
+		log.info("updateCart : {} {} {} {}", userName, itemCategory, brand, quantityRequired);
 		if (userOpt.isPresent()) {
 			Optional<Item> itemOpt = inventory.getItem(itemCategory, brand);
 			if (itemOpt.isPresent()) {
@@ -70,6 +80,7 @@ public class Mart {
 	}
 
 	public String removeFromCart(String userName, String itemCategory, String brand) {
+		log.info("removeFromCart : {} {} {}", userName, itemCategory, brand);
 		Optional<User> userOpt = getUser(userName);
 		if (userOpt.isPresent()) {
 			Optional<Item> itemOpt = inventory.getItem(itemCategory, brand);
@@ -84,6 +95,7 @@ public class Mart {
 	}
 
 	public String getCartDetails(String userName) {
+		log.info("getCartDetails : {}", userName);
 		Optional<User> userOpt = getUser(userName);
 		if (userOpt.isPresent()) {
 			return userOpt.get().getCart().toString();
@@ -93,6 +105,7 @@ public class Mart {
 	}
 	
 	public String cartCheckout(String userName) {
+		log.info("cartCheckout : {}" , userName);
 		Optional<User> userOpt = getUser(userName);
 		int totalPrice = 0;
 		if (userOpt.isPresent()) {
@@ -122,10 +135,12 @@ public class Mart {
 	
 	public String createItem(String itemCategory, String brand, 
 			int price) {
+		log.info("createItem : {} {}", itemCategory, brand);
 		itemsList.add(new Item(itemCategory, brand, price));
 		return "Item created successfully";
 	}
 	private Optional<Item> getItem(String cat, String brand) {
+		log.info("getItem : {} {}", cat, brand);
 		Item req = new Item(cat, brand, 0);
 		for(Item item : itemsList) {
 			if(item.equals(req)) {
@@ -136,6 +151,7 @@ public class Mart {
 	}
 	public String addInventory(String itemCategory, String brand, 
 			int quantity) {
+		log.info("addInventory : {} {}", itemCategory, brand);
 		Optional<Item> itemOpt = getItem(itemCategory, brand);
 		if(itemOpt.isPresent()) {
 			inventory.addItem(itemOpt.get(), quantity);
@@ -149,4 +165,6 @@ public class Mart {
 			inventory.updateItem(entry.getKey(), entry.getValue());
 		}
 	}
+	
+	
 }

@@ -47,7 +47,7 @@ public class EMartApplication {
     	for(String input : inputs) {
     		int start = input.indexOf("(");
     		String command = input.substring(0, start);
-    		String[] arguments = input.substring(start, input.length()-1).split(",");
+    		String[] arguments = input.substring(start+1, input.length()-1).split(",");
     		switch(command.trim()) {
     			case "createItem":
     				output.add(mart.createItem(arguments[0].trim(),
